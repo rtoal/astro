@@ -47,33 +47,33 @@ You can run this on the command line or use this as a module in a larger program
 Command line syntax:
 
 ```
-node astro.js --option filename.astro
+node astro.js <filename> <outputType>
 ```
 
-The option is one of:
+The `outputType` indicates what you wish to print to standard output:
 
 <table>
 <tr><th>Option</th><th>Description</th></tr>
-<tr><td>--tokens</td><td>Show the tokens then halt.</td></tr>
-<tr><td>--ast</td><td>Show the AST then halt.</td></tr>
-<tr><td>--semantic</td><td>Show the decorated AST then halt.</td></tr>
-<tr><td>--llvm</td><td>Show the translation of the program to LLVM IR then halt.</td></tr>
-<tr><td>--c</td><td>Show the translation of the program to C then halt.</td></tr>
-<tr><td>--js</td><td>Show the translation of the program to JavaScript then halt.</td></tr>
+<tr><td>tokens</td><td>The tokens</td></tr>
+<tr><td>ast</td><td>The AST</td></tr>
+<tr><td>semantic</td><td>The decorated AST</td></tr>
+<tr><td>llvm</td><td>The translation of the program to LLVM IR</td></tr>
+<tr><td>c</td><td>The translation of the program to C</td></tr>
+<tr><td>js</td><td>The translation of the program to JavaScript</td></tr>
 </table>
-
-Output goes to stdout.
 
 To embed in another program:
 
 ```
 import { compile } from astro
 
-compile(programAsString, option)
+compile(programAsString, outputType)
 ```
 
-where the option argument is as in the previous section, without the `--`.
+where the `outputType` argument is as in the previous section.
 
 ## Contributing
 
-Pull requests are welcome.
+I’m happy to take PRs. As usual, be nice when filing issues and contributing. Do remember the idea is to keep the language tiny; if you’d like to extend the language, you’re probably better forking into a new project. However, I would love to see any improvements you might have for the implementation or the pedagogy.
+
+Make sure to run `npm test` before submitting the PR.
