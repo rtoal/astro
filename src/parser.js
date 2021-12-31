@@ -1,0 +1,142 @@
+// Parser
+//
+// This is a recursive descent parser. Each phrase rule gets its own parsing
+// function which returns a piece of the Abstract Syntax Tree or throws an
+// Error. More information about Recursive Descent Parsing can be found at
+// https://en.wikipedia.org/wiki/Recursive_descent_parser.
+//
+// The parser is implemented as a function accepting a token stream from a
+// generator. In addition to the variable *token*, the parser uses three
+// utility functions:
+//
+//     match(t)
+//         Here t is a lexeme, a category, or an array of lexemes/categories.
+//         If the next token in the stream matches t (has the lexeme, has the
+//         category, or its lexeme/category in the array), the consume it and
+//         return it. Otherwise, thrown an error.
+//
+//     match()
+//         Consume and return the next token, whatever it is.
+//
+//     at(t)
+//         Similar to match(t) but just returns whether the current token
+//         matches, without consuming it.
+//
+// When calling match() or at(), you can supply either a category or a lexeme,
+// or an array of categories and lexemes:
+//
+//     match("#ID")
+//     match("=")
+//     match(["+", "-", "#NUMBER"])
+//     at(["/", "*"])
+
+import { Program, Assignment, Call, BinaryExpression, UnaryExpression } from "./ast.js"
+
+export default function parse(tokenStream) {
+  let token = tokenStream.next().value
+
+  function at(candidate) {
+    if (Array.isArray(candidate)) {
+      return candidate.some(at)
+    }
+    if (candidate.startsWith("#")) {
+      return token.category === candidate
+    }
+    return token.lexeme === candidate
+  }
+
+  function match(expected) {
+    if (expected === undefined || at(expected)) {
+      const matchedToken = token
+      token = tokenStream.next().value
+      return matchedToken
+    }
+    error(f`Expected '${expected}'`)
+  }
+
+  function error(message) {
+    throw new Error(`Line ${token.line}, column ${token.column}: ${message}`)
+  }
+
+  function parseProgram() {
+    const statements = []
+    statements.push(parseStatement())
+    while (!at("#END")) {
+      statements.push(parseStatement())
+    }
+    return new Program(statements)
+  }
+
+  function parseStatement() {
+    if (at("#ID")) {
+      const target = match()
+      if (at("=")) {
+        const op = match()
+        const source = parseExpression()
+        return new Assignment(op, target, source)
+      } else if (at("(")) {
+        match()
+        const args = [parseExpression()]
+        if (!at(")")) {
+          while (at(",")) {
+            match()
+            args.push(parseExpression())
+          }
+        }
+        match(")")
+        return new Call(target, args)
+      }
+      error(`"=" or "(" expected`)
+    }
+    error("Statement expected")
+  }
+
+  function parseExpression() {
+    let left = parseTerm()
+    while (at(["+", "-"])) {
+      const op = match()
+      const right = parseTerm()
+      left = new BinaryExpression(op, left, right)
+    }
+    return left
+  }
+
+  function parseTerm() {
+    let left = parseFactor()
+    while (at(["*", "/", "%"])) {
+      const op = match()
+      const right = parseFactor()
+      left = new BinaryExpression(op, left, right)
+    }
+    return left
+  }
+
+  function parseFactor() {
+    let left = parsePrimary()
+    while (at("**")) {
+      const op = match()
+      const right = parsePrimary()
+      left = new BinaryExpression(op, left, right)
+    }
+    return left
+  }
+
+  function parsePrimary() {
+    if (at("#NUMBER")) {
+      return match()
+    } else if (at("#ID")) {
+      return match()
+    } else if (at("-")) {
+      const op = match()
+      return new UnaryExpression(op, parseFactor())
+    } else if (at("(")) {
+      match()
+      e = parseExpression()
+      match(")")
+      return e
+    }
+    error("Expected id, number, or '('")
+  }
+
+  return parseProgram()
+}

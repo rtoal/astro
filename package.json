@@ -2,6 +2,7 @@
   "name": "astro",
   "version": "1.0.0",
   "description": "A simple programming language",
+  "type": "module",
   "main": "astro.js",
   "scripts": {
     "test": "c8 node_modules/.bin/mocha"
