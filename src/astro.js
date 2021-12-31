@@ -21,6 +21,8 @@ Prints to stdout according to <outputType>, which must be one of:
   analyzed   the semantically analyzed representation
   optimized  the optimized semantically analyzed representation
   js         the translation to JavaScript
+  c          the translation to C
+  llvm       the translation to LLVM IR
 `
 
 function compile(source, outputType) {
@@ -34,9 +36,8 @@ function compile(source, outputType) {
   //   if (outputType === "optimized") return optimized
   //   if (["js", "c", "llvm"].includes(outputType)) {
   //     return generate(outputType)(optimized)
-  //   } else {
-  return "Unknown output type"
   //   }
+  return "Unknown output type"
 }
 
 Program.prototype[util.inspect.custom] = function () {
@@ -47,7 +48,9 @@ Program.prototype[util.inspect.custom] = function () {
   const tags = new Map()
 
   function tag(node) {
-    if (tags.has(node) || typeof node !== "object" || node === null) return
+    // Attach a unique integer tag to every AST node
+    if (tags.has(node)) return
+    if (typeof node !== "object" || node === null) return
     if (node.constructor === Token) return
     tags.set(node, tags.size + 1)
     for (const child of Object.values(node)) {

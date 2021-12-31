@@ -13,7 +13,7 @@
 //         Here t is a lexeme, a category, or an array of lexemes/categories.
 //         If the next token in the stream matches t (has the lexeme, has the
 //         category, or its lexeme/category in the array), the consume it and
-//         return it. Otherwise, thrown an error.
+//         return it. Otherwise, throw an error.
 //
 //     match()
 //         Consume and return the next token, whatever it is.
@@ -31,6 +31,7 @@
 //     at(["/", "*"])
 
 import { Program, Assignment, Call, BinaryExpression, UnaryExpression } from "./ast.js"
+import error from "./error.js"
 
 export default function parse(tokenStream) {
   let token = tokenStream.next().value
@@ -51,11 +52,7 @@ export default function parse(tokenStream) {
       token = tokenStream.next().value
       return matchedToken
     }
-    error(f`Expected '${expected}'`)
-  }
-
-  function error(message) {
-    throw new Error(`Line ${token.line}, column ${token.column}: ${message}`)
+    error(`Expected '${expected}'`, token)
   }
 
   function parseProgram() {
@@ -86,9 +83,9 @@ export default function parse(tokenStream) {
         match(")")
         return new Call(target, args)
       }
-      error(`"=" or "(" expected`)
+      error(`"=" or "(" expected`, token)
     }
-    error("Statement expected")
+    error("Statement expected", token)
   }
 
   function parseExpression() {
@@ -112,10 +109,12 @@ export default function parse(tokenStream) {
   }
 
   function parseFactor() {
+    // This one rewrites the grammar (!!) because ** is RIGHT associative
+    // New rule: Factor -> Primary ("**" Factor)?
     let left = parsePrimary()
-    while (at("**")) {
+    if (at("**")) {
       const op = match()
-      const right = parsePrimary()
+      const right = parseFactor()
       left = new BinaryExpression(op, left, right)
     }
     return left
@@ -135,7 +134,7 @@ export default function parse(tokenStream) {
       match(")")
       return e
     }
-    error("Expected id, number, or '('")
+    error("Expected id, number, or '('", token)
   }
 
   return parseProgram()

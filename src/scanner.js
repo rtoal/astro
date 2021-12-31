@@ -14,6 +14,8 @@
 //   ("#SYMBOL", "<=", 89, 5)
 //   ("#END", "", 21, 1)
 
+import error from "./error.js"
+
 export class Token {
   constructor(category, lexeme, line, column) {
     Object.assign(this, { category, lexeme, line, column })
@@ -23,7 +25,7 @@ export class Token {
 export function* tokenize(program) {
   let lineNumber = 1
   for (let line of program.split(/\r?\n/)) {
-    yield* tokenizeLine(lineNumber++, [...line])
+    yield* tokenizeLine(lineNumber++, [...line, "\n"])
   }
   yield new Token("#END", "", lineNumber, 1)
 }
@@ -35,8 +37,7 @@ function* tokenizeLine(lineNumber, line) {
     while (/[ \t]/.test(line[i])) i++
 
     // Done if at end or starting a comment
-    if (i >= line.length) return
-    if (line[i] + line[i + 1] === "//") return
+    if (line[i] === "\n" || line[i] + line[i + 1] === "//") break
 
     // Gather up the lexeme from start..i
     let category
@@ -48,6 +49,9 @@ function* tokenizeLine(lineNumber, line) {
       while (/\d/.test(line[i])) i++
       if (line[i] === ".") {
         i++
+        if (!/\d/.test(line[i])) {
+          error(`Digit expected`, { line: lineNumber, column: i + 1 })
+        }
         while (/\d/.test(line[i])) i++
       }
       category = "#NUMBER"
@@ -55,7 +59,7 @@ function* tokenizeLine(lineNumber, line) {
       if (line[start] + line[i] === "**") i++
       category = "#SYMBOL"
     } else {
-      throw new Error(`Unexpected character: '${line[i]}'`)
+      error(`Unexpected character: '${line[start]}'`, { line: lineNumber, column: start })
     }
 
     // Compensate for column beginning at 1, not 0
