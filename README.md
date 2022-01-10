@@ -37,8 +37,6 @@ space      → " " | "\t" | "\r" | "//" (~"\n" any)* ("\n" | end)
 
 ### Static Semantics
 
-All operators are left-associative except \*\* which is right-associative. Assignments bring variables into existence. A variable may not be used unless it has been previously assigned to. In a global context, the following identifiers are assumed to have been declared: `π`, `sqrt`, `sin`, `cos`, `random`, and `print`. The first is just a number and the rest are like their JavaScript counterparts.
-
 The following identifiers are built-in:
 
 - `π`, a number
