@@ -127,7 +127,7 @@ export default function parse(tokenStream) {
       return match()
     } else if (at("-")) {
       const op = match()
-      return new UnaryExpression(op, parseFactor())
+      return new UnaryExpression(op, parsePrimary())
     } else if (at("(")) {
       match()
       e = parseExpression()

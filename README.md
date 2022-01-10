@@ -1,11 +1,14 @@
+![Logo](https://raw.githubusercontent.com/rtoal/astro/main/docs/astrologo.png)
+
 # Astro
 
 A simple programming language, used for a compiler course. Here is a sample program:
 
 ```
-radius = 12.2 * random() + 2E1;
+// A simple program in Astro
+radius = 55.2 * (-random() + 89) % 21;
 the_area = π * radius ** 2;
-print(the_area, cos(2.2E-11) / 5);
+print(the_area, cos(2.28) / 5);
 ```
 
 ## Language Specification
@@ -15,26 +18,43 @@ print(the_area, cos(2.2E-11) / 5);
 We’re using a notation in which rules are to be interpreted as in PEGs and capitalized variables implicitly can have spaces between components in the definition. The character set is Unicode, with letter being any Unicode letter and digit standing for the characters U+0030 to U+0039, inclusive.
 
 ```
--- Grammar for the programming language Astro
-
 Program    → Statement+
 Statement  → id "=" Exp ";"
            | Call ";"
-Exp        → "-"? Term (("+" | "-") Tern)*
-Term       → Factor (("*" | "/" | "%") Factor)*
-Factor     → Primary ("**" Primary)*
-Primary    → numeral
-           | Call
+Exp        → (Exp ("+" | "-"))? Term
+Term       → (Term ("*" | "/" | "%"))? Factor
+Factor     → Primary ("**" Factor)?
+Primary    → num
            | id
+           | Call
+           | "-" Primary
            | "(" Exp ")"
 Call       → id "(" (Exp ("," Exp)*)? ")"
-numeral    → digit+ ("." digit+)? (("E" | "e") ("+" | "-")? digit+)?
+num        → digit+ ("." digit+)?
 id         → letter (letter | digit | "_")*
+space      → " " | "\t" | "\r" | "//" (~"\n" any)* ("\n" | end)
 ```
 
 ### Static Semantics
 
 All operators are left-associative except \*\* which is right-associative. Assignments bring variables into existence. A variable may not be used unless it has been previously assigned to. In a global context, the following identifiers are assumed to have been declared: `π`, `sqrt`, `sin`, `cos`, `random`, and `print`. The first is just a number and the rest are like their JavaScript counterparts.
+
+The following identifiers are built-in:
+
+- `π`, a number
+- `sqrt`, a function of exactly one argument
+- `sin`, a function of exactly one argument
+- `cos`, a function of exactly one argument
+- `random`, a function of exactly zero arguments
+- `print`, a function of any number of arguments
+
+An identifier cannot be used in an expression unless it is one of the built-in identifiers or has been previously assigned to.
+
+All function calls must accept the proper number of arguments.
+
+The built-in identifiers cannot be assigned to.
+
+The function print can only be called in a call statement; the others can only be called in a call expresson.
 
 ### Dynamic Semantics
 
