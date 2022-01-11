@@ -15,7 +15,7 @@ print(the_area, cos(2.28) / 5);
 
 ### Grammar
 
-We’re using a notation in which rules are to be interpreted as in PEGs and capitalized variables implicitly can have spaces between components in the definition. The character set is Unicode, with letter being any Unicode letter and digit standing for the characters U+0030 to U+0039, inclusive.
+In this grammar notation, capitalized variables implicitly can have spaces between components in the definition. The character set is Unicode, with the predefined variable `letter` being any Unicode letter and `digit` standing for the characters U+0030 to U+0039, inclusive.
 
 ```
 Program    → Statement+
@@ -37,6 +37,8 @@ space      → " " | "\t" | "\r" | "//" (~"\n" any)* ("\n" | end)
 
 ### Static Semantics
 
+An identifier cannot be used in an expression unless it is one of the built-in identifiers or has been previously assigned to.
+
 The following identifiers are built-in:
 
 - `π`, a number
@@ -46,17 +48,23 @@ The following identifiers are built-in:
 - `random`, a function of exactly zero arguments
 - `print`, a function of any number of arguments
 
-An identifier cannot be used in an expression unless it is one of the built-in identifiers or has been previously assigned to.
-
 All function calls must accept the proper number of arguments.
 
 The built-in identifiers cannot be assigned to.
 
-The function print can only be called in a call statement; the others can only be called in a call expresson.
+The function `print` can only be called in a call statement; the others can only be called in a call `expression`.
 
 ### Dynamic Semantics
 
-Like JavaScript, really.
+Like JavaScript.
+
+## Building
+
+Nodejs is required to build and run this project. Make sure you have a recent version of Node, since the source code uses a fair amount of very modern JavaScript.
+
+Clone the repo, then run `npm install`.
+
+You can then run `npm test`.
 
 ## Usage
 
