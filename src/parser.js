@@ -37,6 +37,7 @@ export default function parse(tokenStream) {
   let token = tokenStream.next().value
 
   function at(candidate) {
+    // Just checks whether we’re (looking) at a token or tokens we expect
     if (Array.isArray(candidate)) {
       return candidate.some(at)
     }
@@ -47,6 +48,7 @@ export default function parse(tokenStream) {
   }
 
   function match(expected) {
+    // Advances iff we’re at a token we want to be at
     if (expected === undefined || at(expected)) {
       const matchedToken = token
       token = tokenStream.next().value
@@ -66,33 +68,16 @@ export default function parse(tokenStream) {
 
   function parseStatement() {
     if (at("#ID")) {
-      const target = match()
+      const id = match()
       if (at("=")) {
         match()
-        const source = parseExpression()
-        return new Assignment(target, source)
+        return new Assignment(id, parseExpression())
       } else if (at("(")) {
-        return parseCall(target)
+        return new Call(id, parseArgs())
       }
       error(`"=" or "(" expected`, token)
     }
     error("Statement expected", token)
-  }
-
-  function parseCall(id) {
-    // This parsing function is pretty special because the id has already been
-    // matched. So whoever calls this function must pass in the id.
-    match("(")
-    const args = []
-    if (!at(")")) {
-      args.push(parseExpression())
-      while (at(",")) {
-        match()
-        args.push(parseExpression())
-      }
-    }
-    match(")")
-    return new Call(id, args)
   }
 
   function parseExpression() {
@@ -116,8 +101,6 @@ export default function parse(tokenStream) {
   }
 
   function parseFactor() {
-    // This one rewrites the grammar (!!) because ** is RIGHT associative
-    // New rule: Factor -> Primary ("**" Factor)?
     let left = parsePrimary()
     if (at("**")) {
       const op = match()
@@ -132,7 +115,7 @@ export default function parse(tokenStream) {
       return match()
     } else if (at("#ID")) {
       const id = match()
-      return at("(") ? parseCall(id) : id
+      return at("(") ? new Call(id, parseArgs()) : id
     } else if (at("-")) {
       const op = match()
       return new UnaryExpression(op, parsePrimary())
@@ -143,6 +126,20 @@ export default function parse(tokenStream) {
       return e
     }
     error("Expected id, number, or '('", token)
+  }
+
+  function parseArgs() {
+    match("(")
+    const args = []
+    if (!at(")")) {
+      args.push(parseExpression())
+      while (at(",")) {
+        match()
+        args.push(parseExpression())
+      }
+    }
+    match(")")
+    return args
   }
 
   return parseProgram()
