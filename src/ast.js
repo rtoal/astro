@@ -15,14 +15,14 @@ export class Program {
 }
 
 export class Variable {
-  constructor(name) {
-    this.name = name
+  constructor(name, readOnly) {
+    Object.assign(this, { name, readOnly })
   }
 }
 
 export class Function {
-  constructor(name, parameters) {
-    Object.assign(this, { name, parameters })
+  constructor(name, parameters, readOnly) {
+    Object.assign(this, { name, parameters, readOnly })
   }
 }
 
