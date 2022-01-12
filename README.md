@@ -80,8 +80,8 @@ The `outputType` indicates what you wish to print to standard output:
 
 <table>
 <tr><th>Option</th><th>Description</th></tr>
-<tr><td>tokenized</td><td>The tokens</td></tr>
-<tr><td>parsed</td><td>The AST</td></tr>
+<tr><td>tokens</td><td>The tokens</td></tr>
+<tr><td>ast</td><td>The AST</td></tr>
 <tr><td>analyzed</td><td>The decorated AST</td></tr>
 <tr><td>optimized</td><td>The optimized decorated AST</td></tr>
 <tr><td>llvm</td><td>The translation of the program to LLVM IR</td></tr>

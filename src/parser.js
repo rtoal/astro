@@ -57,10 +57,10 @@ export default function parse(tokenStream) {
 
   function parseProgram() {
     const statements = []
-    statements.push(parseStatement())
-    while (!at("#END")) {
+    do {
       statements.push(parseStatement())
-    }
+      match(";")
+    } while (!at("#END"))
     return new Program(statements)
   }
 
@@ -68,24 +68,31 @@ export default function parse(tokenStream) {
     if (at("#ID")) {
       const target = match()
       if (at("=")) {
-        const op = match()
-        const source = parseExpression()
-        return new Assignment(op, target, source)
-      } else if (at("(")) {
         match()
-        const args = [parseExpression()]
-        if (!at(")")) {
-          while (at(",")) {
-            match()
-            args.push(parseExpression())
-          }
-        }
-        match(")")
-        return new Call(target, args)
+        const source = parseExpression()
+        return new Assignment(target, source)
+      } else if (at("(")) {
+        return parseCall(target)
       }
       error(`"=" or "(" expected`, token)
     }
     error("Statement expected", token)
+  }
+
+  function parseCall(id) {
+    // This parsing function is pretty special because the id has already been
+    // matched. So whoever calls this function must pass in the id.
+    match("(")
+    const args = []
+    if (!at(")")) {
+      args.push(parseExpression())
+      while (at(",")) {
+        match()
+        args.push(parseExpression())
+      }
+    }
+    match(")")
+    return new Call(id, args)
   }
 
   function parseExpression() {
@@ -124,13 +131,14 @@ export default function parse(tokenStream) {
     if (at("#NUMBER")) {
       return match()
     } else if (at("#ID")) {
-      return match()
+      const id = match()
+      return at("(") ? parseCall(id) : id
     } else if (at("-")) {
       const op = match()
       return new UnaryExpression(op, parsePrimary())
     } else if (at("(")) {
       match()
-      e = parseExpression()
+      const e = parseExpression()
       match(")")
       return e
     }

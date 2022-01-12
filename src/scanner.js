@@ -55,7 +55,7 @@ function* tokenizeLine(lineNumber, line) {
         while (/\d/.test(line[i])) i++
       }
       category = "#NUMBER"
-    } else if (/[-+*/%=;()]/.test(line[start])) {
+    } else if (/[-+*/%=,;()]/.test(line[start])) {
       if (line[start] + line[i] === "**") i++
       category = "#SYMBOL"
     } else {
