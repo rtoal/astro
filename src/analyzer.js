@@ -77,6 +77,7 @@ class Context {
   }
   Token(e) {
     if (e.category === "#ID") return this.getVariable(e)
+    if (e.category === "#NUMBER") return Number(e.lexeme)
     return e
   }
   Array(a) {
