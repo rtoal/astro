@@ -15,13 +15,8 @@ class Context {
     // to a parent context for static scope analysis.
     this.locals = new Map()
   }
-  addVariable(name, readOnly = false) {
-    const entity = new Variable(name, readOnly)
+  add(name, entity) {
     this.locals.set(name, entity)
-    return entity
-  }
-  addFunction(name, numberOfArguments, readOnly = true) {
-    this.locals.set(name, new Function(name, numberOfArguments, readOnly))
   }
   lookup(token) {
     return this.locals.get(token.lexeme)
@@ -54,7 +49,7 @@ class Context {
     s.source = this.analyze(s.source)
     let entity = this.lookup(s.target)
     if (!entity) {
-      entity = this.addVariable(s.target.lexeme)
+      entity = this.add(new Variable(s.target.lexeme, false))
     } else if (entity.readOnly) {
       error(`The identifier ${s.target.lexeme} is read only`, token)
     }
@@ -64,15 +59,22 @@ class Context {
   BinaryExpression(e) {
     e.left = this.analyze(e.left)
     e.right = this.analyze(e.right)
+    e.op = e.op.lexeme
     return e
   }
   UnaryExpression(e) {
     e.operand = this.analyze(e.operand)
+    e.op = e.op.lexeme
     return e
   }
   Call(c) {
     c.args = this.analyze(c.args)
     c.callee = this.getFunction(c.callee)
+    if (Number.isFinite(c.callee.paramCount)) {
+      if (c.args.length !== c.callee.paramCount) {
+        error(`Expected ${c.callee.paramCount} args, found ${c.args.length}`)
+      }
+    }
     return c
   }
   Token(e) {
@@ -85,13 +87,19 @@ class Context {
   }
 }
 
+export const standardLibrary = {
+  π: new Variable("π", true),
+  sqrt: new Function("sqrt", 1, true),
+  sin: new Function("sin", 1, true),
+  cos: new Function("cos", 1, true),
+  random: new Function("random", 0, true),
+  print: new Function("print", Infinity, true),
+}
+
 export default function analyze(programNode) {
   const initialContext = new Context()
-  initialContext.addVariable("π", true)
-  initialContext.addFunction("sqrt", 1)
-  initialContext.addFunction("sin", 1)
-  initialContext.addFunction("cos", 1)
-  initialContext.addFunction("random", 0)
-  initialContext.addFunction("print", Infinity)
+  for (const [name, entity] of Object.entries(standardLibrary)) {
+    initialContext.add(name, entity)
+  }
   return initialContext.analyze(programNode)
 }

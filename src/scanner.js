@@ -9,10 +9,10 @@
 // Categories always begin with a # character. There are four categories,
 // illustrated here in these example tokens:
 //
-//   ("#ID", "found", 8, 34)
-//   ("#NUMBER", "153.8831", 21, 13)
-//   ("#SYMBOL", "<=", 89, 5)
-//   ("#END", "", 21, 1)
+//   { category: "#ID", lexeme: "found", line: 8, column: 34 }
+//   { category: "#NUMBER", lexeme: "153.8831", line: 21, column: 13 }
+//   { category: "#SYMBOL", lexeme: "<=", line: 89, column: 5 }
+//   { category: "#END", lexeme: "", line: 21, column: 1 }
 
 import error from "./error.js"
 

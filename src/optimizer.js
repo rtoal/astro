@@ -24,15 +24,15 @@ const optimizers = {
     return v
   },
   Function(f) {
+    // Astro functions are all entirely built-in and have
+    // no internal structure to optimize
     return f
   },
   Assignment(s) {
     s.source = optimize(s.source)
     s.target = optimize(s.target)
-    if (s.target.constructor === Variable) {
-      if (s.source === s.target) {
-        return null
-      }
+    if (s.source === s.target) {
+      return null
     }
     return s
   },
@@ -41,31 +41,39 @@ const optimizers = {
     e.right = optimize(e.right)
     if (e.left.constructor === Number) {
       if (e.right.constructor === Number) {
-        if (e.op.lexeme === "+") {
+        if (e.op === "+") {
           return e.left + e.right
-        } else if (e.op.lexeme === "-") {
+        } else if (e.op === "-") {
           return e.left - e.right
-        } else if (e.op.lexeme === "*") {
+        } else if (e.op === "*") {
           return e.left * e.right
-        } else if (e.op.lexeme === "/") {
+        } else if (e.op === "/") {
           return e.left / e.right
+        } else if (e.op === "%") {
+          return e.left % e.right
+        } else if (e.op === "**" && !(e.left === 0 && e.right == 0)) {
+          return e.left ** e.right
         }
-      } else if (e.left === 0 && e.op.lexeme === "+") {
+      } else if (e.left === 0 && e.op === "+") {
         return e.right
-      } else if (e.left === 1 && e.op.lexeme === "*") {
+      } else if (e.left === 1 && e.op === "*") {
         return e.right
-      } else if (e.left === 0 && e.op.lexeme === "-") {
+      } else if (e.left === 0 && e.op === "-") {
         return new UnaryExpression("-", e.right)
       } else if (e.left === 0 && ["*", "/"].includes(e.op)) {
         return 0
+      } else if (e.op === "**" && e.left === 1) {
+        return 1
       }
     } else if (e.right.constructor === Number) {
       if (["+", "-"].includes(e.op) && e.right === 0) {
         return e.left
       } else if (["*", "/"].includes(e.op) && e.right === 1) {
         return e.left
-      } else if (e.op.lexeme === "*" && e.right === 0) {
+      } else if (e.op === "*" && e.right === 0) {
         return 0
+      } else if (e.op === "**" && e.left !== 0 && e.right === 0) {
+        return 1
       }
     }
     return e
@@ -73,19 +81,20 @@ const optimizers = {
   UnaryExpression(e) {
     e.operand = optimize(e.operand)
     if (e.operand.constructor === Number) {
-      if (e.op.lexeme === "-") {
+      if (e.op === "-") {
         return -e.operand
       }
     }
     return e
   },
   Call(c) {
+    c.callee = optimize(c.callee)
     c.args = optimize(c.args)
+    console.log(c.callee, c.args)
     if (c.args.length === 1 && c.args[0].constructor === Number) {
-      const x = c.args[0]
-      if (c.callee.name === "sqrt") return Math.sqrt(x)
-      if (c.callee.name === "sin") return Math.sin(x)
-      if (c.callee.name === "cos") return Math.cos(x)
+      if (c.callee.name === "sqrt") return Math.sqrt(c.args[0])
+      if (c.callee.name === "sin") return Math.sin(c.args[0])
+      if (c.callee.name === "cos") return Math.cos(c.args[0])
     }
     return c
   },
