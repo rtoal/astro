@@ -60,7 +60,7 @@ const optimizers = {
         return e.right
       } else if (e.left === 0 && e.op === "-") {
         return new UnaryExpression("-", e.right)
-      } else if (e.left === 0 && ["*", "/"].includes(e.op)) {
+      } else if (e.left === 0 && ["*", "/", "%"].includes(e.op)) {
         return 0
       } else if (e.op === "**" && e.left === 1) {
         return 1
