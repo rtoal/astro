@@ -12,14 +12,14 @@ function dedent(s) {
 // Just one trivial test case for now, enough to get coverage.
 const fixture = {
   source: `
-    x = 3.1;
+    x = sin(random() * 3.1);
     x = 5 * sqrt(x) / -x + x - cos(π);
     print(x);
   `,
   expected: {
     js: dedent`
       let x_1;
-      x_1 = 3.1;
+      x_1 = Math.sin((Math.random() * 3.1));
       x_1 = ((((5 * Math.sqrt(x_1)) / -(x_1)) + x_1) - Math.cos(Math.PI));
       console.log(x_1);
     `,
@@ -28,7 +28,7 @@ const fixture = {
       #include <math.h>
       int main() {
       double x_1;
-      x_1 = 3.1;
+      x_1 = sin((random() * 3.1));
       x_1 = ((((5 * sqrt(x_1)) / -(x_1)) + x_1) - cos(M_PI));
       printf("%g\\n", x_1);
       return 0;

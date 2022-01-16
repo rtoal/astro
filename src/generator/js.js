@@ -41,7 +41,8 @@ export default function generate(program) {
       if (f === standardLibrary.cos) return "Math.cos"
       if (f === standardLibrary.random) return "Math.random"
       if (f === standardLibrary.print) return "console.log"
-      return targetName(f)
+      // Note: In general, we'd write <return targetName(f)> here,
+      // but there are no functions in Astro other than these five!
     },
     Assignment(s) {
       const source = gen(s.source)

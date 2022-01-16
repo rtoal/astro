@@ -46,7 +46,8 @@ export default function generate(program) {
       if (f === standardLibrary.cos) return "cos"
       if (f === standardLibrary.random) return "random"
       if (f === standardLibrary.print) return "printf"
-      return targetName(f)
+      // Note: In general, we'd write <return targetName(f)> here,
+      // but there are no functions in Astro other than these five!
     },
     Assignment(s) {
       const source = gen(s.source)
@@ -62,9 +63,10 @@ export default function generate(program) {
           const format = `"${Array(c.args.length).fill("%g").join(" ")}\\n"`
           const allArgs = [format, ...args].join(", ")
           output.push(`printf(${allArgs});`)
-        } else {
-          output.push(`${callee}(${args.join(",")});`)
         }
+        // Note: no else part needed, because print is the ONLY statement
+        // level function in Astro. If we had others, we would have an else
+        // part with <output.push(`${callee}(${args.join(",")});`)>
       } else {
         return `${callee}(${args.join(",")})`
       }

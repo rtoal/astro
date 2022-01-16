@@ -77,7 +77,8 @@ class Context {
   Token(t) {
     if (t.category === "#ID") return this.get(t, Variable)
     if (t.category === "#NUMBER") return Number(t.lexeme)
-    return e
+    // Note: we would normally say <return e> here, but the #SYMBOL and
+    // #END token types never get subject to analysis.
   }
   Array(a) {
     return a.map(item => this.analyze(item))
