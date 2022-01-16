@@ -28,6 +28,7 @@ export default function generate(program) {
 
   const generators = {
     Program(p) {
+      output.push("") // leave one line open for variable declarations
       gen(p.statements)
     },
     Variable(v) {
@@ -72,6 +73,6 @@ export default function generate(program) {
   }
 
   gen(program)
-  const declarations = assigned.size > 0 ? `let ${[...assigned].join(", ")};\n` : ""
-  return `${declarations}${output.join("\n")}`
+  output[0] = assigned.size > 0 ? `let ${[...assigned].join(", ")};` : ""
+  return output.join("\n")
 }

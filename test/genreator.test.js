@@ -27,7 +27,8 @@ const fixture = {
       #include <stdio.h>
       #include <math.h>
       int main() {
-      double x_1 = 3.1;
+      double x_1;
+      x_1 = 3.1;
       x_1 = ((((5 * sqrt(x_1)) / -(x_1)) + x_1) - cos(M_PI));
       printf("%g\\n", x_1);
       return 0;
@@ -55,7 +56,7 @@ const fixture = {
 }
 
 describe("The code generator", () => {
-  for (const target of ["js" /* "c", "llvm" */]) {
+  for (const target of ["js", "c" /* "llvm" */]) {
     it(`produces expected ${target} output for the small program`, done => {
       const intermediate = optimize(analyze(parse(tokenize(fixture.source))))
       const actual = generate(target)(intermediate)
