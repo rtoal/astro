@@ -30,8 +30,14 @@
 //     match(["+", "-", "#NUMBER"])
 //     at(["/", "*"])
 
-import { Program, Assignment, Call, BinaryExpression, UnaryExpression } from "./ast.js"
-import error from "./error.js"
+import {
+  Program,
+  Assignment,
+  Call,
+  BinaryExpression,
+  UnaryExpression,
+  error,
+} from "./core.js"
 
 export default function parse(tokenStream) {
   let token = tokenStream.next().value
@@ -73,7 +79,7 @@ export default function parse(tokenStream) {
         match()
         return new Assignment(id, parseExpression())
       } else if (at("(")) {
-        return new Call(id, parseArgs())
+        return new Call(id, parseArgs(), true)
       }
       error(`"=" or "(" expected`, token)
     }
@@ -115,7 +121,7 @@ export default function parse(tokenStream) {
       return match()
     } else if (at("#ID")) {
       const id = match()
-      return at("(") ? new Call(id, parseArgs()) : id
+      return at("(") ? new Call(id, parseArgs(), false) : id
     } else if (at("-")) {
       const op = match()
       return new UnaryExpression(op, parsePrimary())

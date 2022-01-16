@@ -1,6 +1,6 @@
 import assert from "assert/strict"
 import tokenize from "../src/scanner.js"
-import { Token } from "../src/ast.js"
+import { Token } from "../src/core.js"
 
 const errorCases = [
   ["malformed number", "2.f", /Error: Line 1, Column 3: Digit expected/],

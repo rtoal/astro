@@ -9,7 +9,7 @@
 //   - constant folding
 //   - some strength reductions (+0, -0, *0, *1, etc.)
 
-import { Variable, UnaryExpression } from "./ast.js"
+import { UnaryExpression } from "./core.js"
 
 export default function optimize(node) {
   return optimizers[node.constructor.name](node)

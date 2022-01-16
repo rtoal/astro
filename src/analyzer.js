@@ -2,8 +2,7 @@
 //
 // Analyzes the AST by looking for semantic errors and resolving references.
 
-import { Variable, Function } from "./ast.js"
-import error from "./error.js"
+import { Variable, Function, standardLibrary, error } from "./core.js"
 
 class Context {
   constructor() {
@@ -17,6 +16,7 @@ class Context {
   }
   add(name, entity) {
     this.locals.set(name, entity)
+    return entity
   }
   lookup(token) {
     return this.locals.get(token.lexeme)
@@ -61,6 +61,12 @@ class Context {
   Call(c) {
     c.args = this.analyze(c.args)
     c.callee = this.get(c.callee, Function)
+    if (c.isStatement && c.callee.valueReturning) {
+      error(`Return value of ${c.callee.name} must be used`)
+    }
+    if (!c.isStatement && !c.callee.valueReturning) {
+      error(`${c.callee.name} does not return a value`)
+    }
     if (Number.isFinite(c.callee.paramCount)) {
       if (c.args.length !== c.callee.paramCount) {
         error(`Expected ${c.callee.paramCount} arg(s), found ${c.args.length}`)
@@ -76,15 +82,6 @@ class Context {
   Array(a) {
     return a.map(item => this.analyze(item))
   }
-}
-
-export const standardLibrary = {
-  π: new Variable("π", true),
-  sqrt: new Function("sqrt", 1, true),
-  sin: new Function("sin", 1, true),
-  cos: new Function("cos", 1, true),
-  random: new Function("random", 0, true),
-  print: new Function("print", Infinity, true),
 }
 
 export default function analyze(programNode) {

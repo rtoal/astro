@@ -2,7 +2,7 @@ import assert from "assert/strict"
 import tokenize from "../src/scanner.js"
 import parse from "../src/parser.js"
 import analyze from "../src/analyzer.js"
-import * as ast from "../src/ast.js"
+import * as core from "../src/core.js"
 
 const semanticChecks = [
   ["variables can be printed", "x = 1; print(x);"],
@@ -18,14 +18,16 @@ const semanticErrors = [
   ["an attempt to write a read-only var", "π = 3;", /The identifier π is read only/],
   ["too few arguments", "print(sin());", /Expected 1 arg\(s\), found 0/],
   ["too many arguments", "print(sin(5, 10));", /Expected 1 arg\(s\), found 2/],
+  ["procedure called in expression", "x=print(1);", /print does not return a value/],
+  ["function called as statement", "sin(1);", /Return value of sin must be used/],
 ]
 
 // TODO
-// const varX = new ast.Variable("x")
-// const letX1 = Object.assign(new ast.VariableDeclaration("x", 1), {
+// const varX = new core.Variable("x")
+// const letX1 = Object.assign(new core.VariableDeclaration("x", 1), {
 //   variable: varX,
 // })
-// const assignX2 = new ast.Assignment(varX, 2)
+// const assignX2 = new core.Assignment(varX, 2)
 // const graphChecks = [["Variable created & resolved", "let x=1 x=2", [letX1, assignX2]]]
 const graphChecks = []
 
@@ -42,7 +44,7 @@ describe("The analyzer", () => {
   }
   for (const [scenario, source, graph] of graphChecks) {
     it(`properly rewrites the AST for ${scenario}`, () => {
-      assert.deepEqual(analyze(parse(tokenize(source))), new ast.Program(graph))
+      assert.deepEqual(analyze(parse(tokenize(source))), new core.Program(graph))
     })
   }
 })

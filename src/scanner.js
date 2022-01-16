@@ -14,8 +14,7 @@
 //   { category: "#SYMBOL", lexeme: "<=", line: 89, column: 5 }
 //   { category: "#END", lexeme: "", line: 21, column: 1 }
 
-import error from "./error.js"
-import { Token } from "./ast.js"
+import { Token, error } from "./core.js"
 
 export default function* tokenize(program) {
   let lineNumber = 1
