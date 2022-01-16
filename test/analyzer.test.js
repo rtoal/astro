@@ -1,24 +1,26 @@
-import assert from "assert"
+import assert from "assert/strict"
 import tokenize from "../src/scanner.js"
 import parse from "../src/parser.js"
 import analyze from "../src/analyzer.js"
 import * as ast from "../src/ast.js"
 
 const semanticChecks = [
-  ["print variable", "x = 1; print(x);"],
-  ["reassign variable", "x = 1; x = x * 5 / (3 + x);"],
-  ["predefined identifiers", "print(sqrt(sin(cos(π + random()))));"],
+  ["variables can be printed", "x = 1; print(x);"],
+  ["variables can be reassigned", "x = 1; x = x * -5 / (3 + x);"],
+  ["all operators", "x = 3 * -2 + 4 - -7.3 * 8 ** 13 ** 2 / 1;"],
+  ["all predefined identifiers", "print(sqrt(sin(cos(π + random()))));"],
 ]
 
 const semanticErrors = [
-  ["non declared ids", "print(x);", /Identifier x not declared/],
-  ["var used as function", "x = 1; x(2);", /expected/],
-  ["function used as var", "print(sin + 1);", /expected/],
-  ["attempt to write a read-only var", "π = 3;", /The identifier π is read only/],
-  ["too few args", "print(sin());", /Expected 1 arg\(s\), found 0/],
-  ["too many args", "print(sin(5, 10));", /Expected 1 arg\(s\), found 2/],
+  ["using undeclared identifiers", "print(x);", /Identifier x not declared/],
+  ["a variable used as function", "x = 1; x(2);", /expected/],
+  ["a function used as variable", "print(sin + 1);", /expected/],
+  ["an attempt to write a read-only var", "π = 3;", /The identifier π is read only/],
+  ["too few arguments", "print(sin());", /Expected 1 arg\(s\), found 0/],
+  ["too many arguments", "print(sin(5, 10));", /Expected 1 arg\(s\), found 2/],
 ]
 
+// TODO
 // const varX = new ast.Variable("x")
 // const letX1 = Object.assign(new ast.VariableDeclaration("x", 1), {
 //   variable: varX,
@@ -40,7 +42,7 @@ describe("The analyzer", () => {
   }
   for (const [scenario, source, graph] of graphChecks) {
     it(`properly rewrites the AST for ${scenario}`, () => {
-      assert.deepStrictEqual(analyze(parse(tokenize(source))), new ast.Program(graph))
+      assert.deepEqual(analyze(parse(tokenize(source))), new ast.Program(graph))
     })
   }
 })
