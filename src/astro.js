@@ -2,11 +2,7 @@
 
 import fs from "fs/promises"
 import process from "process"
-import tokenize from "./scanner.js"
-import parse from "./parser.js"
-import analyze from "./analyzer.js"
-import optimize from "./optimizer.js"
-import generate from "./generator/index.js"
+import compile from "./compiler.js"
 
 const help = `Astro compiler
 
@@ -23,27 +19,12 @@ Prints to stdout according to <outputType>, which must be one of:
   llvm       the translation to LLVM IR
 `
 
-function compile(source, outputType) {
-  const tokens = tokenize(source)
-  if (outputType === "tokens") return [...tokens]
-  const ast = parse(tokens)
-  if (outputType === "ast") return ast
-  const analyzed = analyze(ast)
-  if (outputType === "analyzed") return analyzed
-  const optimized = optimize(analyzed)
-  if (outputType === "optimized") return optimized
-  if (["js", "c", "llvm"].includes(outputType)) {
-    return generate(outputType)(optimized)
-  }
-  return "Unknown output type"
-}
-
 async function compileFromFile(filename, outputType) {
   try {
     const buffer = await fs.readFile(filename)
     console.log(compile(buffer.toString(), outputType))
   } catch (e) {
-    console.error(e)
+    console.error(`\u001b[31m${e}\u001b[39m`)
     process.exitCode = 1
   }
 }
