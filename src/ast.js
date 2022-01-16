@@ -6,7 +6,12 @@
 // by phase.
 
 import util from "util"
-import { Token } from "./scanner.js"
+
+export class Token {
+  constructor(category, lexeme, line, column) {
+    Object.assign(this, { category, lexeme, line, column })
+  }
+}
 
 export class Program {
   constructor(statements) {
@@ -21,8 +26,8 @@ export class Variable {
 }
 
 export class Function {
-  constructor(name, parameters, readOnly) {
-    Object.assign(this, { name, parameters, readOnly })
+  constructor(name, paramCount, readOnly) {
+    Object.assign(this, { name, paramCount, readOnly })
   }
 }
 

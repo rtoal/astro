@@ -15,14 +15,9 @@
 //   { category: "#END", lexeme: "", line: 21, column: 1 }
 
 import error from "./error.js"
+import { Token } from "./ast.js"
 
-export class Token {
-  constructor(category, lexeme, line, column) {
-    Object.assign(this, { category, lexeme, line, column })
-  }
-}
-
-export function* tokenize(program) {
+export default function* tokenize(program) {
   let lineNumber = 1
   for (let line of program.split(/\r?\n/)) {
     yield* tokenizeLine(lineNumber++, [...line, "\n"])

@@ -21,21 +21,12 @@ class Context {
   lookup(token) {
     return this.locals.get(token.lexeme)
   }
-  get(token) {
+  get(token, expectedType) {
     const entity = this.lookup(token)
     if (!entity) error(`Identifier ${token.lexeme} not declared`, token)
-    return entity
-  }
-  getVariable(token) {
-    const entity = this.get(token)
-    if (!entity.constructor === Variable) {
-      error(`Cannot use function ${token.lexeme} here`, token)
+    if (entity.constructor !== expectedType) {
+      error(`${token.lexeme} was expected to be a ${expectedType.name}`, token)
     }
-    return entity
-  }
-  getFunction(token) {
-    const entity = this.get(token)
-    if (!entity.constructor === Function) error(`${token.lexeme} cannot be called`, token)
     return entity
   }
   analyze(node) {
@@ -49,9 +40,9 @@ class Context {
     s.source = this.analyze(s.source)
     let entity = this.lookup(s.target)
     if (!entity) {
-      entity = this.add(new Variable(s.target.lexeme, false))
+      entity = this.add(s.target.lexeme, new Variable(s.target.lexeme, false))
     } else if (entity.readOnly) {
-      error(`The identifier ${s.target.lexeme} is read only`, token)
+      error(`The identifier ${s.target.lexeme} is read only`, s.target)
     }
     s.target = entity
     return s
@@ -69,17 +60,17 @@ class Context {
   }
   Call(c) {
     c.args = this.analyze(c.args)
-    c.callee = this.getFunction(c.callee)
+    c.callee = this.get(c.callee, Function)
     if (Number.isFinite(c.callee.paramCount)) {
       if (c.args.length !== c.callee.paramCount) {
-        error(`Expected ${c.callee.paramCount} args, found ${c.args.length}`)
+        error(`Expected ${c.callee.paramCount} arg(s), found ${c.args.length}`)
       }
     }
     return c
   }
-  Token(e) {
-    if (e.category === "#ID") return this.getVariable(e)
-    if (e.category === "#NUMBER") return Number(e.lexeme)
+  Token(t) {
+    if (t.category === "#ID") return this.get(t, Variable)
+    if (t.category === "#NUMBER") return Number(t.lexeme)
     return e
   }
   Array(a) {
