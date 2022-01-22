@@ -58,14 +58,14 @@ export class Function {
   }
 }
 
-export const standardLibrary = {
+export const standardLibrary = Object.freeze({
   π: new Variable("π", true),
   sqrt: new Function("sqrt", 1, true, true),
   sin: new Function("sin", 1, true, true),
   cos: new Function("cos", 1, true, true),
   random: new Function("random", 0, true, true),
   print: new Function("print", Infinity, true, false),
-}
+})
 
 export function error(message, { line, column } = {}) {
   throw new Error(`Line ${line ?? "-"}, Column ${column ?? "-"}: ${message}`)

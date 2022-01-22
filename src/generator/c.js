@@ -11,9 +11,9 @@ export default function generate(program) {
   // Collect all assigned variables here so we can output declarations
   const assigned = new Set()
 
-  // Variable names in JS will be suffixed with _1, _2, _3, etc. This is
+  // Variable names in C will be suffixed with _1, _2, _3, etc. This is
   // because "while", for example, is a legal variable name in Astro, but
-  // not in JS. So we want to generate something like "while_1". We handle
+  // not in C. So we want to generate something like "while_1". We handle
   // this by mapping each variable declaration to its suffix.
   const targetName = (mapping => {
     return entity => {
@@ -44,11 +44,11 @@ export default function generate(program) {
     Function(f) {
       // Only three possible functions will ever need to be generated, as
       // two of the five are intrinsically handled in the Call generator.
-      return {
-        [standardLibrary.sqrt]: "sqrt",
-        [standardLibrary.sin]: "sin",
-        [standardLibrary.cos]: "cos",
-      }[f]
+      return new Map([
+        [standardLibrary.sqrt, "sqrt"],
+        [standardLibrary.sin, "sin"],
+        [standardLibrary.cos, "cos"],
+      ]).get(f)
     },
     Assignment(s) {
       const source = gen(s.source)
@@ -74,6 +74,9 @@ export default function generate(program) {
       }
     },
     BinaryExpression(e) {
+      if (e.op === "**") {
+        return `pow(${gen(e.left)}, ${gen(e.right)})`
+      }
       return `(${gen(e.left)} ${e.op} ${gen(e.right)})`
     },
     UnaryExpression(e) {

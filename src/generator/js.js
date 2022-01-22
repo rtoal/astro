@@ -36,13 +36,14 @@ export default function generate(program) {
       return targetName(v)
     },
     Function(f) {
-      if (f === standardLibrary.sqrt) return "Math.sqrt"
-      if (f === standardLibrary.sin) return "Math.sin"
-      if (f === standardLibrary.cos) return "Math.cos"
-      if (f === standardLibrary.random) return "Math.random"
-      if (f === standardLibrary.print) return "console.log"
-      // Note: In general, we'd write <return targetName(f)> here,
-      // but there are no functions in Astro other than these five!
+      // The *only() functions in Astro are in the standard library.
+      return new Map([
+        [standardLibrary.sqrt, "Math.sqrt"],
+        [standardLibrary.sin, "Math.sin"],
+        [standardLibrary.cos, "Math.cos"],
+        [standardLibrary.random, "Math.random"],
+        [standardLibrary.print, "console.log"],
+      ]).get(f)
     },
     Assignment(s) {
       const source = gen(s.source)
@@ -74,6 +75,7 @@ export default function generate(program) {
   }
 
   gen(program)
+  // Fifth line declares all the variables (required in JS, not in Astro)
   output[0] = assigned.size > 0 ? `let ${[...assigned].join(", ")};` : ""
   return output.join("\n")
 }
