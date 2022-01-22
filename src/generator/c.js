@@ -29,6 +29,7 @@ export default function generate(program) {
   const generators = {
     Program(p) {
       output.push("#include <stdio.h>")
+      output.push("#include <stdlib.h>")
       output.push("#include <math.h>")
       output.push("int main() {")
       output.push("")
@@ -41,13 +42,13 @@ export default function generate(program) {
       return targetName(v)
     },
     Function(f) {
-      if (f === standardLibrary.sqrt) return "sqrt"
-      if (f === standardLibrary.sin) return "sin"
-      if (f === standardLibrary.cos) return "cos"
-      if (f === standardLibrary.random) return "random"
-      if (f === standardLibrary.print) return "printf"
-      // Note: In general, we'd write <return targetName(f)> here,
-      // but there are no functions in Astro other than these five!
+      // Only three possible functions will ever need to be generated, as
+      // two of the five are intrinsically handled in the Call generator.
+      return {
+        [standardLibrary.sqrt]: "sqrt",
+        [standardLibrary.sin]: "sin",
+        [standardLibrary.cos]: "cos",
+      }[f]
     },
     Assignment(s) {
       const source = gen(s.source)
@@ -57,18 +58,19 @@ export default function generate(program) {
     },
     Call(c) {
       const args = gen(c.args)
-      const callee = gen(c.callee)
-      if (c.isStatement) {
-        if (c.callee === standardLibrary.print) {
-          const format = `"${Array(c.args.length).fill("%g").join(" ")}\\n"`
-          const allArgs = [format, ...args].join(", ")
-          output.push(`printf(${allArgs});`)
-        }
-        // Note: no else part needed, because print is the ONLY statement
-        // level function in Astro. If we had others, we would have an else
-        // part with <output.push(`${callee}(${args.join(",")});`)>
+      if (c.callee === standardLibrary.print) {
+        const format = `"${Array(c.args.length).fill("%g").join(" ")}\\n"`
+        const allArgs = [format, ...args].join(", ")
+        output.push(`printf(${allArgs});`)
+      } else if (c.callee == standardLibrary.random) {
+        return "(rand()/(double)RAND_MAX)"
       } else {
-        return `${callee}(${args.join(",")})`
+        // Note: There is no need here in Astro to try to distinguish between
+        // statement-level and expression-level calls as the ONLY statement-
+        // level call, print, has been taken care of earlier as a special
+        // case, so here the only possible kinds of functions remaining are
+        // expression-level ones.
+        return `${gen(c.callee)}(${args.join(",")})`
       }
     },
     BinaryExpression(e) {
@@ -86,6 +88,7 @@ export default function generate(program) {
   }
 
   gen(program)
-  output[3] = assigned.size > 0 ? `double ${[...assigned].join(", ")};` : ""
+  // Fifth line declares all the variables (required in C, not in Astro)
+  output[4] = assigned.size > 0 ? `double ${[...assigned].join(", ")};` : ""
   return output.join("\n")
 }
