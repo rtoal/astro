@@ -75,8 +75,8 @@ class Context {
     return c
   }
   Token(t) {
-    if (t.category === "#ID") return this.get(t, Variable)
-    if (t.category === "#NUMBER") return Number(t.lexeme)
+    if (t.category === "Id") return this.get(t, Variable)
+    if (t.category === "Num") return Number(t.lexeme)
     // Note: we would normally say <return e> here, but the #SYMBOL and
     // #END token types never get subject to analysis.
   }

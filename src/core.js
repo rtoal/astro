@@ -92,9 +92,7 @@ Program.prototype[util.inspect.custom] = function () {
   function* lines() {
     function view(e) {
       if (tags.has(e)) return `#${tags.get(e)}`
-      if (e?.constructor === Token) {
-        return e.category !== "#SYMBOL" ? e.lexeme : util.inspect(e.lexeme)
-      }
+      if (e?.constructor === Token) return `${e.category}(${e.lexeme})`
       if (Array.isArray(e)) return `[${e.map(view)}]`
       return util.inspect(e)
     }

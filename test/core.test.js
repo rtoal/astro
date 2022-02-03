@@ -19,15 +19,15 @@ import {
 
 const parsed = new Program([
   new Assignment(
-    "x",
+    new Token("Id", "x"),
     new BinaryExpression(
-      new Token("#SYMBOL", "**"),
-      new Token("#NUMBER", "3"),
-      new UnaryExpression("-", new Token("#ID", "π"))
+      new Token("Sym", "**"),
+      new Token("Num", "3"),
+      new UnaryExpression(new Token("Sym", "-"), new Token("Id", "π"))
     )
   ),
-  new Call(new Token("#ID", "print"), [
-    new Call(new Token("#ID", "sin"), [new Token("#ID", "x")]),
+  new Call(new Token("Id", "print"), [
+    new Call(new Token("Id", "sin"), [new Token("Id", "x")]),
   ]),
 ])
 
@@ -40,11 +40,11 @@ const analyzed = new Program([
 ])
 
 const expectedParseOutput = `   1 | Program statements=[#2,#5]
-   2 | Assignment target='x' source=#3
-   3 | BinaryExpression op='**' left=3 right=#4
-   4 | UnaryExpression op='-' operand=π
-   5 | Call callee=print args=[#6] isStatement=false
-   6 | Call callee=sin args=[x] isStatement=false`
+   2 | Assignment target=Id(x) source=#3
+   3 | BinaryExpression op=Sym(**) left=Num(3) right=#4
+   4 | UnaryExpression op=Sym(-) operand=Id(π)
+   5 | Call callee=Id(print) args=[#6] isStatement=false
+   6 | Call callee=Id(sin) args=[Id(x)] isStatement=false`
 
 const expectedAnalysisOutput = `   1 | Program statements=[#2,#4,#6]
    2 | Assignment target=#3 source=1

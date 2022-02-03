@@ -25,9 +25,9 @@
 // When calling match() or at(), you can supply either a category or a lexeme,
 // or an array of categories and lexemes:
 //
-//     match("#ID")
+//     match("Category:Id")
 //     match("=")
-//     match(["+", "-", "#NUMBER"])
+//     match(["+", "-", "Category:Num"])
 //     at(["/", "*"])
 
 import {
@@ -47,8 +47,8 @@ export default function parse(tokenStream) {
     if (Array.isArray(candidate)) {
       return candidate.some(at)
     }
-    if (candidate.startsWith("#")) {
-      return token.category === candidate
+    if (candidate.startsWith("Category:")) {
+      return token.category === candidate.slice(9)
     }
     return token.lexeme === candidate
   }
@@ -68,12 +68,12 @@ export default function parse(tokenStream) {
     do {
       statements.push(parseStatement())
       match(";")
-    } while (!at("#END"))
+    } while (!at("Category:End"))
     return new Program(statements)
   }
 
   function parseStatement() {
-    if (at("#ID")) {
+    if (at("Category:Id")) {
       const id = match()
       if (at("=")) {
         match()
@@ -117,9 +117,9 @@ export default function parse(tokenStream) {
   }
 
   function parsePrimary() {
-    if (at("#NUMBER")) {
+    if (at("Category:Num")) {
       return match()
-    } else if (at("#ID")) {
+    } else if (at("Category:Id")) {
       const id = match()
       return at("(") ? new Call(id, parseArgs(), false) : id
     } else if (at("-")) {

@@ -60,19 +60,19 @@ const source = `x=-1;print(x**5);`
 
 const expectedAst = new core.Program([
   new core.Assignment(
-    new core.Token("#ID", "x", 1, 1),
+    new core.Token("Id", "x", 1, 1),
     new core.UnaryExpression(
-      new core.Token("#SYMBOL", "-", 1, 3),
-      new core.Token("#NUMBER", "1", 1, 4)
+      new core.Token("Sym", "-", 1, 3),
+      new core.Token("Num", "1", 1, 4)
     )
   ),
   new core.Call(
-    new core.Token("#ID", "print", 1, 6),
+    new core.Token("Id", "print", 1, 6),
     [
       new core.BinaryExpression(
-        new core.Token("#SYMBOL", "**", 1, 13),
-        new core.Token("#ID", "x", 1, 12),
-        new core.Token("#NUMBER", "5", 1, 15)
+        new core.Token("Sym", "**", 1, 13),
+        new core.Token("Id", "x", 1, 12),
+        new core.Token("Num", "5", 1, 15)
       ),
     ],
     true

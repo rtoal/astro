@@ -9,10 +9,10 @@
 // Categories always begin with a # character. There are four categories,
 // illustrated here in these example tokens:
 //
-//   { category: "#ID", lexeme: "found", line: 8, column: 34 }
-//   { category: "#NUMBER", lexeme: "153.8831", line: 21, column: 13 }
-//   { category: "#SYMBOL", lexeme: "<=", line: 89, column: 5 }
-//   { category: "#END", lexeme: "", line: 21, column: 1 }
+//   { category: "Id", lexeme: "found", line: 8, column: 34 }
+//   { category: "Num", lexeme: "153.8831", line: 21, column: 13 }
+//   { category: "Sym", lexeme: "<=", line: 89, column: 5 }
+//   { category: "End", lexeme: "", line: 21, column: 1 }
 
 import { Token, error } from "./core.js"
 
@@ -21,7 +21,7 @@ export default function* tokenize(program) {
   for (let line of program.split(/\r?\n/)) {
     yield* tokenizeLine(lineNumber++, [...line, "\n"])
   }
-  yield new Token("#END", "", lineNumber, 1)
+  yield new Token("End", "", lineNumber, 1)
 }
 
 // Line is expected to be an array of Unicode chars not JS chars
@@ -38,7 +38,7 @@ function* tokenizeLine(lineNumber, line) {
     let start = i++
     if (/\p{L}/u.test(line[start])) {
       while (/[\p{L}\d_]/u.test(line[i])) i++
-      category = "#ID"
+      category = "Id"
     } else if (/\d/.test(line[start])) {
       while (/\d/.test(line[i])) i++
       if (line[i] === ".") {
@@ -48,10 +48,10 @@ function* tokenizeLine(lineNumber, line) {
         }
         while (/\d/.test(line[i])) i++
       }
-      category = "#NUMBER"
+      category = "Num"
     } else if (/[-+*/%=,;()]/.test(line[start])) {
       if (line[start] + line[i] === "**") i++
-      category = "#SYMBOL"
+      category = "Sym"
     } else {
       error(`Unexpected character: '${line[start]}'`, { line: lineNumber, column: start })
     }
