@@ -20,14 +20,6 @@ const optimizers = {
     p.statements = optimize(p.statements)
     return p
   },
-  Variable(v) {
-    return v
-  },
-  Function(f) {
-    // Astro functions are all entirely built-in and have
-    // no internal structure to optimize
-    return f
-  },
   Assignment(s) {
     s.source = optimize(s.source)
     s.target = optimize(s.target)
@@ -97,8 +89,8 @@ const optimizers = {
     }
     return c
   },
-  Number(n) {
-    return n
+  Token(t) {
+    return t.value
   },
   Array(a) {
     // Optimizing arrays involves flattening an removing nulls

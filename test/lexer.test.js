@@ -44,7 +44,7 @@ const expectedTokens = [
 ]
 
 describe("The lexer", () => {
-  it(`correctly scans the big test case`, () => {
+  it(`correctly tokenizes the big test case`, () => {
     assert.deepEqual(expectedTokens, [...tokenize(allTokens)])
   })
   for (const [scenario, source, errorMessagePattern] of errorCases) {

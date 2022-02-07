@@ -44,7 +44,7 @@ class Context {
     } else if (entity.readOnly) {
       error(`The identifier ${s.target.lexeme} is read only`, s.target)
     }
-    s.target = entity
+    s.target.value = entity
     return s
   }
   BinaryExpression(e) {
@@ -60,25 +60,27 @@ class Context {
   }
   Call(c) {
     c.args = this.analyze(c.args)
-    c.callee = this.get(c.callee, Function)
-    if (c.isStatement && c.callee.valueReturning) {
-      error(`Return value of ${c.callee.name} must be used`)
+    c.callee.value = this.get(c.callee, Function)
+    if (c.isStatement && c.callee.value.valueReturning) {
+      error(`Return value of ${c.callee.value.name} must be used`)
     }
-    if (!c.isStatement && !c.callee.valueReturning) {
-      error(`${c.callee.name} does not return a value`)
+    if (!c.isStatement && !c.callee.value.valueReturning) {
+      error(`${c.callee.value.name} does not return a value`)
     }
-    if (Number.isFinite(c.callee.paramCount)) {
-      if (c.args.length !== c.callee.paramCount) {
-        error(`Expected ${c.callee.paramCount} arg(s), found ${c.args.length}`)
+    if (Number.isFinite(c.callee.value.paramCount)) {
+      if (c.args.length !== c.callee.value.paramCount) {
+        error(`Expected ${c.callee.value.paramCount} arg(s), found ${c.args.length}`)
       }
     }
     return c
   }
   Token(t) {
-    if (t.category === "Id") return this.get(t, Variable)
-    if (t.category === "Num") return Number(t.lexeme)
-    // Note: we would normally say <return e> here, but the #SYMBOL and
-    // #END token types never get subject to analysis.
+    // Shortcut: only handle ids that are variables here, when we analyze
+    // calls we won't dive in here. This shortcut won't work well in
+    // languages with more types.
+    if (t.category === "Id") t.value = this.get(t, Variable)
+    if (t.category === "Num") t.value = Number(t.lexeme)
+    return t
   }
   Array(a) {
     return a.map(item => this.analyze(item))
