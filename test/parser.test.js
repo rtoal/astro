@@ -1,5 +1,5 @@
 import assert from "assert/strict"
-import tokenize from "../src/scanner.js"
+import tokenize from "../src/lexer.js"
 import parse from "../src/parser.js"
 import * as core from "../src/core.js"
 

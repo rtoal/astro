@@ -1,4 +1,4 @@
-import tokenize from "./scanner.js"
+import tokenize from "./lexer.js"
 import parse from "./parser.js"
 import analyze from "./analyzer.js"
 import optimize from "./optimizer.js"

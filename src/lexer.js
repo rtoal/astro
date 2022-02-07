@@ -1,6 +1,6 @@
-// Scanner
+// Lexer
 //
-// This is a hand-crafted scanner, using no external libraries at all. The
+// This is a hand-crafted lexer, using no external libraries at all. The
 // module exports a function to tokenize a program passed as a string.
 // (A real-life compiler would provide a way to compile line-by-line from
 // a file as well.)

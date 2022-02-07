@@ -1,5 +1,5 @@
 import assert from "assert/strict"
-import tokenize from "../src/scanner.js"
+import tokenize from "../src/lexer.js"
 import { Token } from "../src/core.js"
 
 const errorCases = [
@@ -43,7 +43,7 @@ const expectedTokens = [
   new Token("End", "", 8, 1),
 ]
 
-describe("The scanner", () => {
+describe("The lexer", () => {
   it(`correctly scans the big test case`, () => {
     assert.deepEqual(expectedTokens, [...tokenize(allTokens)])
   })
