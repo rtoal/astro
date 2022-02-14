@@ -33,11 +33,10 @@ class Context {
     return this[node.constructor.name](node)
   }
   Program(p) {
-    p.statements = this.analyze(p.statements)
-    return p
+    this.analyze(p.statements)
   }
   Assignment(s) {
-    s.source = this.analyze(s.source)
+    this.analyze(s.source)
     let entity = this.lookup(s.target)
     if (!entity) {
       entity = this.add(s.target.lexeme, new Variable(s.target.lexeme, false))
@@ -45,21 +44,18 @@ class Context {
       error(`The identifier ${s.target.lexeme} is read only`, s.target)
     }
     s.target.value = entity
-    return s
   }
   BinaryExpression(e) {
-    e.left = this.analyze(e.left)
-    e.right = this.analyze(e.right)
+    this.analyze(e.left)
+    this.analyze(e.right)
     e.op = e.op.lexeme
-    return e
   }
   UnaryExpression(e) {
-    e.operand = this.analyze(e.operand)
+    this.analyze(e.operand)
     e.op = e.op.lexeme
-    return e
   }
   Call(c) {
-    c.args = this.analyze(c.args)
+    this.analyze(c.args)
     c.callee.value = this.get(c.callee, Function)
     if (c.isStatement && c.callee.value.valueReturning) {
       error(`Return value of ${c.callee.value.name} must be used`)
@@ -72,7 +68,6 @@ class Context {
         error(`Expected ${c.callee.value.paramCount} arg(s), found ${c.args.length}`)
       }
     }
-    return c
   }
   Token(t) {
     // Shortcut: only handle ids that are variables here, when we analyze
@@ -80,10 +75,9 @@ class Context {
     // languages with more types.
     if (t.category === "Id") t.value = this.get(t, Variable)
     if (t.category === "Num") t.value = Number(t.lexeme)
-    return t
   }
   Array(a) {
-    return a.map(item => this.analyze(item))
+    a.forEach(item => this.analyze(item))
   }
 }
 
@@ -92,5 +86,6 @@ export default function analyze(programNode) {
   for (const [name, entity] of Object.entries(standardLibrary)) {
     initialContext.add(name, entity)
   }
-  return initialContext.analyze(programNode)
+  initialContext.analyze(programNode)
+  return programNode
 }
